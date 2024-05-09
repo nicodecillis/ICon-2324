@@ -37,7 +37,7 @@ def scrape_rating_info(df):
 def clean(dataset):
     df = pd.read_csv(dataset)
 
-    df.drop(["Installs", "Minimum Installs", "Free", "Developer Email", "Developer Website", "Privacy Policy", "Scraped Time"], axis=1, inplace=True)
+    df.drop(["Installs", "Minimum Installs", "Free", "Developer Email", "Developer Website", "Released", "Privacy Policy", "Scraped Time"], axis=1, inplace=True)
 
     df.rename(columns={"Maximum Installs": "Downloads"}, inplace=True)
 
