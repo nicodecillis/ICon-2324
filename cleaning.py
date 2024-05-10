@@ -28,7 +28,6 @@ def scrape_rating_info(df):
                 else:
                     df.at[index, "Rating"] = round(result["score"], 1)
                     df.at[index, "Rating Count"] = result["ratings"]
-                print(row["App Name"], " -- Rating: ", df.at[index, "Rating"], " -- Rating Count: ", df.at[index, "Rating Count"])
             except google_play_scraper.exceptions.NotFoundError:
                 print(row["App Name"], "Not Found")
                 df.drop(index, inplace=True)
@@ -37,20 +36,28 @@ def scrape_rating_info(df):
 def clean(dataset):
     df = pd.read_csv(dataset)
 
-    df.drop(["Installs", "Minimum Installs", "Free", "Developer Email", "Developer Website", "Released", "Privacy Policy", "Scraped Time"], axis=1, inplace=True)
+    df.drop(["Installs", "Minimum Installs", "Free", "Developer Email",
+             "Developer Website", "Released", "Privacy Policy", "Scraped Time"], axis=1, inplace=True)
 
     df.rename(columns={"Maximum Installs": "Downloads"}, inplace=True)
 
     df.drop(df[df["Downloads"] < 100].index, inplace=True)
     df.drop(df[df["Rating Count"] < 15].index, inplace=True)
 
-    #controlla contains_foreign_characters per ogni riga di "App Name" e se restituisce True, elimina la riga
+    # controlla contains_foreign_characters per ogni riga di "App Name" e se restituisce True, elimina la riga
     df.drop(df[df["App Name"].apply(contains_foreign_characters)].index, inplace=True)
 
     scrape_rating_info(df)
+    # controllo inconsistenze tra Rating Count e Downloads
+    df.drop(df[df["Rating Count"] > df["Downloads"]].index, inplace=True)
+    df.loc[(df["Price"] == 0) & (df["Currency"] != "USD"), "Currency"] = "USD"
+    df.loc[pd.isnull(df["Minimum Android"]), "Minimum Android"] = "Varies with device"
+    # aggiunta manuale delle dimensioni mancanti
+    df.loc[df["App Id"] == "com.cuberobotics.susu", "Size"] = "16.4M"
+    df.loc[df["App Id"] == "com.zkteco.intelitime", "Size"] = "2.9M"
+    df.loc[df["App Id"] == "com.dormstudios.away", "Size"] = "Varies with device"
 
-    df.to_csv("clean-playstore-apps.csv", index=False)
+    df.to_csv("dataset/clean-playstore-apps.csv", index=False)
 
 
-clean("playstore-apps.csv")
-
+clean("dataset/playstore-apps.csv")
