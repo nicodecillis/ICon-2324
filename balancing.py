@@ -2,7 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_csv('dataset/clean-playstore-apps.csv', na_filter = False)
+
+df = pd.read_csv('dataset/clean-playstore-apps.csv', na_filter=False)
 
 print("Numero di campioni totali nel dataset prima del bilanciamento: ", len(df))
 
