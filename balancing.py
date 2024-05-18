@@ -2,6 +2,9 @@ import pandas as pd
 
 df = pd.read_csv('dataset/clean-playstore-apps.csv')
 
+print("Numero di campioni totali nel dataset prima del bilanciamento: ", len(df))
+
+# BILANCIAMENTO RATINGS
 total_undersampling = pd.DataFrame()
 min_undersampling = 30
 max_undersampling = 50
@@ -15,12 +18,11 @@ for i in range(min_undersampling, max_undersampling+1):
     rating = i/10
     if len(df[df['Rating'] == rating]) < min_samples:
         min_samples = len(df[df['Rating'] == rating])
-print("Numero campioni per rating: ", min_samples)
 
 
 # UNDERSAMPLING: rating 3.0 - 5.0
-# le righe con download maggiori di 10milioni devono essere escluse dall'undersampling
-filtered_df = df[(df['Downloads'] > 10000000) & (df['Rating'] >= min_undersampling/10) & (df['Rating'] <= max_undersampling/10)]
+# le righe con download maggiori o uguali a 10 milioni devono essere escluse dall'undersampling
+filtered_df = df[(df['Downloads'] >= 10000000) & (df['Rating'] >= min_undersampling/10) & (df['Rating'] <= max_undersampling/10)]
 sample = pd.DataFrame()
 
 for i in range(min_undersampling, max_undersampling+1):
@@ -31,8 +33,9 @@ for i in range(min_undersampling, max_undersampling+1):
               .sample(n=min_samples - len(total_undersampling[total_undersampling["Rating"] == rating]), random_state=42))
     total_undersampling = pd.concat([total_undersampling, sample])
 
-df = df.drop(df[(df['Rating'] >= min_undersampling/10) & (df['Rating'] <= max_undersampling/10) & (~df['App Id'].isin(total_undersampling['App Id']))].index)
-print("Numero di campioni totali dopo l'undersampling: ", len(df))
+df = df.drop(df[(df['Rating'] >= min_undersampling/10) & (df['Rating'] <= max_undersampling/10)
+                & (~df['App Id'].isin(total_undersampling['App Id']))].index)
+print("Numero di campioni totali dopo l'undersampling (rating 3.0 - 5.0): ", len(df))
 
 
 # OVERSAMPLING: rating 1.0 - 2.9
@@ -52,14 +55,32 @@ df = pd.concat([df, sample])
 print("Numero di campioni totali dopo l'oversampling (rating 0): ", len(df))
 
 
-#stampa barplot rating
-import seaborn as sns
-import matplotlib.pyplot as plt
-sns.barplot(x=df['Rating'].value_counts().index, y=df['Rating'].value_counts())
-plt.xlabel('Rating')
-plt.ylabel('Frequency')
-plt.title('Distribution of Ratings')
-plt.show()
+# BILANCIAMENTO CATEGORIE
+# UNDERSAMPLING
+max_undersampling = df[df['Category'] == 'Reads']
+categories = []
+for cat in df['Category'].unique():
+    if len(df[df['Category'] == cat]) > len(max_undersampling):
+        categories.append(cat)
+filtered_cat = pd.DataFrame()
+for cat in categories:
+    filtered_cat = pd.concat([filtered_cat, df[(df['Downloads'] >= 10000000) & (df['Category'] == cat)]])
+    sample = (df[(df['Category'] == cat) & (df['Downloads'] < 10000000)]
+                .sample(n=len(max_undersampling) - len(filtered_cat[filtered_cat['Category'] == cat]), random_state=42))
+    filtered_cat = pd.concat([filtered_cat, sample])
+    df = df.drop(df[(df['Category'] == cat) & (~df['App Id'].isin(filtered_cat['App Id']))].index)
+print("Numero di campioni totali dopo l'undersampling delle categorie: ", len(df))
 
+
+# OVERSAMPLING
+min_oversampling = df[df['Category'] == 'Food & Drink']
+categories = []
+for cat in df['Category'].unique():
+    if len(df[df['Category'] == cat]) < len(min_oversampling):
+        categories.append(cat)
+for cat in categories:
+    sample = df[df['Category'] == cat].sample(n=len(min_oversampling) - len(df[df['Category'] == cat]), replace=True, random_state=42)
+    df = pd.concat([df, sample])
+print("Numero di campioni totali dopo l'oversampling delle categorie: ", len(df))
 
 df.to_csv('dataset/balanced-playstore-apps.csv', index=False)
