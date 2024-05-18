@@ -33,6 +33,17 @@ def scrape_rating_info(df):
                 df.drop(index, inplace=True)
 
 
+def scrape_unrated_apps(df):
+    for index, row in df.iterrows():
+        if row["Content Rating"] == "Unrated":
+            try:
+                result = app(row["App Id"])
+                df.at[index, "Content Rating"] = result["contentRating"]
+            except google_play_scraper.exceptions.NotFoundError:
+                print(row["App Name"], "Not Found")
+                df.drop(index, inplace=True)
+
+
 def clean(dataset):
     df = pd.read_csv(dataset)
 
@@ -47,6 +58,9 @@ def clean(dataset):
     # controlla contains_foreign_characters per ogni riga di "App Name" e se restituisce True, elimina la riga
     df.drop(df[df["App Name"].apply(contains_foreign_characters)].index, inplace=True)
 
+    # aggiunta dei nomi delle app mancanti
+    df.loc[pd.isnull(df["App Name"]), "App Name"] = df.loc[pd.isnull(df["App Name"]), "App Id"].apply(lambda x: app(x)["title"])
+
     scrape_rating_info(df)
     # controllo inconsistenze tra Rating Count e Downloads
     df.drop(df[df["Rating Count"] > df["Downloads"]].index, inplace=True)
@@ -56,6 +70,17 @@ def clean(dataset):
     df.loc[df["App Id"] == "com.cuberobotics.susu", "Size"] = "16.4M"
     df.loc[df["App Id"] == "com.zkteco.intelitime", "Size"] = "2.9M"
     df.loc[df["App Id"] == "com.dormstudios.away", "Size"] = "Varies with device"
+
+    scrape_unrated_apps(df)
+    # aggiunta manuale dei Content Rating non specificati
+    df.loc[df["App Id"] == "com.Shumbolag", "Content Rating"] = "Everyone"
+    df.loc[df["App Id"] == "cz.inzeratyzdarma.cz", "Content Rating"] = "Mature 17+"
+    df.loc[df["App Id"] == "clumsy.cheatingdevz.com.clumsybirdcheat", "Content Rating"] = "Everyone"
+    df.loc[df["App Id"] == "com.jb.gosms.pctheme.moji", "Content Rating"] = "Everyone"
+
+    df.loc[df["Content Rating"] == "Teen", "Content Rating"] = "Teen 13+"
+    df.loc[df["Content Rating"] == "Adults only 18+", "Content Rating"] = "Mature 17+"
+
 
     df.to_csv("dataset/clean-playstore-apps.csv", index=False)
 
