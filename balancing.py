@@ -1,4 +1,6 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 df = pd.read_csv('dataset/clean-playstore-apps.csv')
 
@@ -84,3 +86,17 @@ for cat in categories:
 print("Numero di campioni totali dopo l'oversampling delle categorie: ", len(df))
 
 df.to_csv('dataset/balanced-playstore-apps.csv', index=False)
+
+# Distribuzione dei Ratings
+sns.barplot(x=df['Rating'].value_counts().index, y=df['Rating'].value_counts())
+plt.xlabel('Rating')
+plt.ylabel('Numero di App')
+plt.title('Distribuzione dei Ratings')
+plt.show()
+
+# Distribuzione delle Categorie
+fig2, ax = plt.subplots()
+df['Category'].value_counts().plot(kind='barh', ax=ax)
+ax.set_title('Distribuzione delle Categorie')
+ax.set_xlabel('Numero di App')
+plt.show()
