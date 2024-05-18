@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_csv('dataset/clean-playstore-apps.csv')
+df = pd.read_csv('dataset/clean-playstore-apps.csv', na_filter = False)
 
 print("Numero di campioni totali nel dataset prima del bilanciamento: ", len(df))
 
@@ -20,7 +20,6 @@ for i in range(min_undersampling, max_undersampling+1):
     rating = i/10
     if len(df[df['Rating'] == rating]) < min_samples:
         min_samples = len(df[df['Rating'] == rating])
-
 
 # UNDERSAMPLING: rating 3.0 - 5.0
 # le righe con download maggiori o uguali a 10 milioni devono essere escluse dall'undersampling
