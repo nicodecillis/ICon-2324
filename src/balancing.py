@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('dataset/preprocessed-playstore-apps.csv', na_filter=False)
+df = pd.read_csv('../dataset/preprocessed-playstore-apps.csv', na_filter=False)
 
 # RAGGRUPPAMENTO in quattro classi di Success Rate
 df['Success Rate'] = df['Success Rate'].replace([0, 1, 2, 3], 1)

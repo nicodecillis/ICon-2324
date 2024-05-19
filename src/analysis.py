@@ -48,17 +48,18 @@ def scatter_plot(df, x, y, title):
 
 
 def correlation_matrix(df, title):
-    df = df[["Rating", "Rating Count", "Downloads", "Price",
-             "Content Rating", "Ad Supported", "In App Purchases", "Editors Choice"]]
-    df = pd.get_dummies(df, columns=["Content Rating"])
+    df = df[["Rating", "Rating Count", "Downloads", "Price", "Ad Supported",
+             "In App Purchases", "Editors Choice", "Success Rate"]]
+    df = pd.get_dummies(df, columns=["Success Rate"])
     plt.figure(figsize=(15, 5))
     sns.heatmap(df.corr(method="spearman"), annot=True)
     plt.title(title)
     plt.show()
 
+
 try:
-    df_preprocessed = pd.read_csv("dataset/preprocessed-playstore-apps.csv")
-    df_balanced = pd.read_csv("dataset/balanced-playstore-apps.csv")
+    df_preprocessed = pd.read_csv("../dataset/preprocessed-playstore-apps.csv")
+    df_balanced = pd.read_csv("../dataset/balanced-playstore-apps.csv")
 
     # Distribuzione dei Content Ratings
     pie_plot(df_preprocessed, 'Content Rating', "Distribuzione dei Content Ratings nel dataset pre-processato")
@@ -87,5 +88,6 @@ try:
     # Matrice di correlazione
     correlation_matrix(df_preprocessed, "Matrice di Correlazione nel dataset pre-processato")
     correlation_matrix(df_balanced, "Matrice di Correlazione nel dataset bilanciato")
+
 except KeyboardInterrupt:
     pass
