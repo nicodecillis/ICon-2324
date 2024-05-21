@@ -1,4 +1,5 @@
 dataset/playstore-apps.csv
 dataset/preprocessed-playstore-apps.csv
+kb/facts.pl
 .idea/
 .venv/
