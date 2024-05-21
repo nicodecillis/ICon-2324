@@ -11,7 +11,7 @@ df['Success Rate'] = df['Success Rate'].replace([7, 8, 9, 10], 4)
 # UNDERSAMPLING: Success Rate 1-3
 success_min = 1
 success_max = 3
-min_samples = 50000
+min_samples = 9000
 
 for success in range(success_min, success_max+1):
     sample = (df[(df['Success Rate'] == success)].sample(n=min_samples, random_state=42))
@@ -29,4 +29,4 @@ df['Success Rate'] = df['Success Rate'].replace([2], 'Mildly popular')
 df['Success Rate'] = df['Success Rate'].replace([3], 'Popular')
 df['Success Rate'] = df['Success Rate'].replace([4], 'Very popular')
 
-df.to_csv('dataset/balanced-playstore-apps.csv', index=False)
+df.to_csv('../dataset/balanced-playstore-apps.csv', index=False)

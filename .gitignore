@@ -1,3 +1,4 @@
-dataset/
+dataset/playstore-apps.csv
+dataset/preprocessed-playstore-apps.csv
 .idea/
 .venv/

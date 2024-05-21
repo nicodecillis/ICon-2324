@@ -71,11 +71,13 @@ def clean(df):
 
     df.rename(columns={"Maximum Installs": "Downloads"}, inplace=True)
 
-    df.drop(df[df["Downloads"] < 100].index, inplace=True)
-    df.drop(df[df["Rating Count"] < 15].index, inplace=True)
+    df.drop(df[df["Downloads"] < 1000].index, inplace=True)
+    df.drop(df[df["Rating Count"] < 50].index, inplace=True)
 
     # controlla contains_foreign_characters per ogni riga di "App Name" e se restituisce True, elimina la riga
     df.drop(df[df["App Name"].apply(contains_foreign_characters)].index, inplace=True)
+
+    df["Rating Count"] = df["Rating Count"].astype(int)
 
     # aggiunta dei nomi delle app mancanti
     df.loc[pd.isnull(df["App Name"]), "App Name"] = df.loc[pd.isnull(df["App Name"]), "App Id"].apply(lambda x: app(x)["title"])
