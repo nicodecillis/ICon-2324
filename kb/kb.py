@@ -4,36 +4,131 @@ import pandas as pd
 
 def write_facts(df):
     with open('facts.pl', 'w', encoding='utf-8') as f:
+        facts_list = [
+            ":- discontiguous app_name/2.",
+            ":- discontiguous app_developer/2.",
+            ":- discontiguous app_rating_price/3.",
+            ":- discontiguous app_developer_downloads/3.",
+            ":- discontiguous app_rating_downloads/3.",
+            ":- discontiguous app_category_price/3.",
+            ":- discontiguous app_category_edchoice/3.",
+            ":- discontiguous app_category_downloads/3.",
+            ":- discontiguous app_category_rating/3.",
+            ":- discontiguous app_price_downloads/3.",
+            ":- discontiguous app_category_developer_success/4.",
+            ":- discontiguous app_developer_success/3.",
+            ":- discontiguous app_success_purchases_downloads/4.",
+            ":- discontiguous app_success_ad_downloads/4."
+        ]
+
+        f.writelines("\n".join(facts_list) + "\n")
+
         for index, row in df.iterrows():
-            app_id = row['App Id']
-            app_name = row['App Name']
+            app_id = str(row['App Id'])
+            app_name = str(row['App Name'])
             price = row['Price']
             rating = row['Rating']
             downloads = row['Downloads']
-            developer_id = row['Developer Id']
+            developer_id = str(row['Developer Id'])
             category = row['Category']
             editors_choice = row['Editors Choice']
             success_rate = row['Success Rate']
             in_app_purchases = row['In App Purchases']
             ad_supported = row['Ad Supported']
-            facts = [f"app_name({app_id}, {app_name})",
-                     f"app_developer({app_name}, {developer_id})",
-                     f"app_price_rating({app_name}, {price}, {rating})",
-                     f"app_developer_downloads({app_name}, {developer_id}, {downloads})",
-                     f"app_rating_downloads({app_name}, {rating}, {downloads})",
-                     f"app_category_price({app_name}, {category}, {price})",
-                     f"app_category_edchoice({app_name}, {category}, {editors_choice})",
-                     f"app_category_downloads({app_name}, {category}, {downloads})",
-                     f"app_category_rating({app_name}, {category}, {rating})",
-                     f"app_price_downloads({app_name}, {price}, {downloads})",
-                     f"app_category_developer_success({app_name}, {category}, {developer_id}, {success_rate})",
-                     f"app_developer_success({app_name}, {developer_id}, {success_rate})",
-                     f"app_success_purchases_downloads({app_name}, {success_rate}, {in_app_purchases}, {downloads})",
-                     f"app_success_ad_downloads({app_name}, {success_rate}, {ad_supported}, {downloads})"]
+
+            # controlla se in developer_id o app_name ci sono " ed eliminali
+            if "'" in app_name:
+                app_name = app_name.replace("'", '')
+
+            if "'" in developer_id:
+                developer_id = developer_id.replace("'", '')
+
+            app_id = f"'{app_id}'"
+            app_name = f"'{app_name}'"
+            developer_id = f"'{developer_id}'"
+            category = f"'{category}'"
+            editors_choice = f"'{editors_choice}'"
+            in_app_purchases = f"'{in_app_purchases}'"
+            ad_supported = f"'{ad_supported}'"
+            success_rate = f"'{success_rate}'"
+
+            '''app_name = f'"{app_name}"'
+            developer_id = f'"{developer_id}"'
+            category = f'"{category}"'
+            editors_choice = f'"{editors_choice}"'
+            in_app_purchases = f'"{in_app_purchases}"'
+            ad_supported = f'"{ad_supported}"'
+            success_rate = f'"{success_rate}"' '''
+
+            facts = [f"app_name({app_id},{app_name}).",
+                     f"app_developer({app_name},{developer_id}).",
+                     f"app_rating_price({app_name},{rating},{price}).",
+                     f"app_developer_downloads({app_name},{developer_id},{downloads}).",
+                     f"app_rating_downloads({app_name},{rating},{downloads}).",
+                     f"app_category_price({app_name},{category},{price}).",
+                     f"app_category_edchoice({app_name},{category},{editors_choice}).",
+                     f"app_category_downloads({app_name},{category},{downloads}).",
+                     f"app_category_rating({app_name},{category},{rating}).",
+                     f"app_price_downloads({app_name},{price},{downloads}).",
+                     f"app_category_developer_success({app_name},{category},{developer_id},{success_rate}).",
+                     f"app_developer_success({app_name},{developer_id},{success_rate}).",
+                     f"app_success_purchases_downloads({app_name},{success_rate},{in_app_purchases},{downloads}).",
+                     f"app_success_ad_downloads({app_name},{success_rate},{ad_supported},{downloads})."]
             f.writelines("\n".join(facts) + "\n")
+        f.close()
+
+
+def write_rules(rules):
+    with open('rules.pl', 'w', encoding='utf-8') as f:
+        f.write(rules)
         f.close()
 
 
 dataset = pd.read_csv('../dataset/balanced-playstore-apps.csv')
 dataset = dataset.drop_duplicates()
 write_facts(dataset)
+
+rules = """
+% Predicato per restituire i primi N elementi di una lista
+take(0, _, []).
+take(N, [Head|Tail], [Head|Taken]) :-
+    N > 0,
+    N1 is N - 1,
+    take(N1, Tail, Taken).
+
+% Predicato per trovare le app di uno specifico sviluppatore
+apps_by_developer(Dev, AppName) :- app_developer(AppName, Dev).
+apps_by_developer_list(Dev, List) :- 
+    findall(AppName, apps_by_developer(Dev, AppName), List).
+    
+% Predicato per ottenere una lista (con AppName, Price, Rating) di N app entro una certa soglia di prezzo e con una valutazione superiore o uguale a un certo valore
+top_rating_price(RatingTh, PriceTh, N, TopApps) :- 
+    findall((AppName, Rating, Price), (app_rating_price(AppName, Rating, Price), Price =< PriceTh, Rating >= RatingTh), AppList),
+    sort(2, @>=, AppList, SortedApps),
+    take(N, SortedApps, TopApps).
+
+% Predicato per ottenere una lista di N app ordinate per numero di download per uno sviluppatore dato
+top_downloads_by_developer(Dev, N, TopAppsWithDownloads) :-
+    findall((AppName, Downloads), app_developer_downloads(AppName, Dev, Downloads), AppsWithDownloads),
+    sort(2, @>=, AppsWithDownloads, SortedAppsWithDownloads),
+    take(N, SortedAppsWithDownloads, TopAppsWithDownloads).
+    
+% Predicato per ottenere una lista di N app con rating maggiore o uguale ad un certo valore ma poco scaricate
+top_rating_low_downloads(RatingTh, N, TopApps) :-
+    findall((AppName, Rating, Downloads), app_rating_downloads(AppName, Rating, Downloads), AppList),
+    include([(_, Rating, Downloads)]>>(Rating >= RatingTh, Downloads =< 5000), AppList, FilteredApps),
+    sort(2, @>=, FilteredApps, SortedApps),
+    take(N, SortedApps, TopApps).
+
+% Predicato per trovare app con valutazione superiore o uguale a un certo valore e molto scaricate
+apps_by_rating_downloads_high(RatingTh, DownloadsTh, AppName) :- 
+    app_rating_downloads(AppName, Rating, Downloads), Rating >= RatingTh, Downloads > DownloadsTh.
+
+% Regola per ottenere una lista di N app sotto una certa soglia di prezzo e di una certa categoria
+apps_by_category_price(Category, PriceTh, N, TopApps) :- 
+    findall((AppName, Price), (app_category_price(AppName, Category, Price), Price =< PriceTh), List),
+    sort(2, @=<, List, SortedList),
+    take(N, SortedList, TopApps).
+"""
+
+write_rules(rules)
