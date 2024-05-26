@@ -1,4 +1,3 @@
-from pyswip import Prolog
 import pandas as pd
 
 
@@ -6,20 +5,18 @@ def write_facts(df):
     with open('facts.pl', 'w', encoding='utf-8') as f:
         facts_list = [
             ":- discontiguous app_name/2.",
-            ":- discontiguous app_developer/2.",
             ":- discontiguous app_rating_price/3.",
             ":- discontiguous app_developer_downloads/3.",
             ":- discontiguous app_rating_downloads/3.",
             ":- discontiguous app_category/2.",
             ":- discontiguous app_category_price/3.",
             ":- discontiguous app_category_edchoice/3.",
+            ":- discontiguous app_category_edchoice_downloads/4.",
             ":- discontiguous app_category_downloads/3.",
             ":- discontiguous app_category_rating/3.",
             ":- discontiguous app_price_downloads/3.",
             ":- discontiguous app_category_developer_success/4.",
-            ":- discontiguous app_developer_success/3.",
-            ":- discontiguous app_success_purchases_downloads/4.",
-            ":- discontiguous app_success_ad_downloads/4."
+            ":- discontiguous app_success_rating_downloads/4."
         ]
 
         f.writelines("\n".join(facts_list) + "\n")
@@ -34,8 +31,6 @@ def write_facts(df):
             category = row['Category']
             editors_choice = row['Editors Choice']
             success_rate = row['Success Rate']
-            in_app_purchases = row['In App Purchases']
-            ad_supported = row['Ad Supported']
 
             # controlla se in developer_id o app_name ci sono " ed eliminali
             if "'" in app_name:
@@ -49,25 +44,21 @@ def write_facts(df):
             developer_id = f"'{developer_id}'"
             category = f"'{category}'"
             editors_choice = f"'{editors_choice}'"
-            in_app_purchases = f"'{in_app_purchases}'"
-            ad_supported = f"'{ad_supported}'"
             success_rate = f"'{success_rate}'"
 
             facts = [f"app_name({app_id},{app_name}).",
-                     f"app_developer({app_name},{developer_id}).",
                      f"app_rating_price({app_name},{rating},{price}).",
                      f"app_developer_downloads({app_name},{developer_id},{downloads}).",
                      f"app_rating_downloads({app_name},{rating},{downloads}).",
                      f"app_category({app_name},{category}).",
                      f"app_category_price({app_name},{category},{price}).",
                      f"app_category_edchoice({app_name},{category},{editors_choice}).",
+                     f"app_category_edchoice_downloads({app_name},{category},{editors_choice},{downloads}).",
                      f"app_category_downloads({app_name},{category},{downloads}).",
                      f"app_category_rating({app_name},{category},{rating}).",
                      f"app_price_downloads({app_name},{price},{downloads}).",
                      f"app_category_developer_success({app_name},{category},{developer_id},{success_rate}).",
-                     f"app_developer_success({app_name},{developer_id},{success_rate}).",
-                     f"app_success_purchases_downloads({app_name},{success_rate},{in_app_purchases},{downloads}).",
-                     f"app_success_ad_downloads({app_name},{success_rate},{ad_supported},{downloads})."]
+                     f"app_success_rating_downloads({app_name},{success_rate},{rating},{downloads})."]
             f.writelines("\n".join(facts) + "\n")
         f.close()
 
@@ -80,10 +71,9 @@ def write_rules(rules):
 
 dataset = pd.read_csv('../dataset/balanced-playstore-apps.csv')
 dataset = dataset.drop_duplicates()
-#write_facts(dataset)
+write_facts(dataset)
 
-rules = """
-% Predicato per restituire i primi N elementi di una lista
+rules = """% Predicato per restituire i primi N elementi di una lista
 take(0, _, []).
 take(N, [Head|Tail], [Head|Taken]) :-
     N > 0,
@@ -98,11 +88,6 @@ count_occurrences(Elem, [Elem|Tail], Count) :-
 count_occurrences(Elem, [Head|Tail], Count) :-
     Elem \\= Head,
     count_occurrences(Elem, Tail, Count).
-
-% Predicato per trovare le app di uno specifico sviluppatore
-apps_by_developer(Dev, AppName) :- app_developer(AppName, Dev).
-apps_by_developer_list(Dev, List) :- 
-    findall(AppName, apps_by_developer(Dev, AppName), List).
     
 % Predicato per ottenere una lista di N app entro una certa soglia di prezzo e con una valutazione superiore o uguale a un certo valore
 top_rating_price(RatingTh, PriceTh, N, TopApps) :- 
@@ -123,9 +108,11 @@ top_rating_low_downloads(RatingTh, N, TopApps) :-
     sort(2, @>=, FilteredApps, SortedApps),
     take(N, SortedApps, TopApps).
 
-% Predicato per trovare app con valutazione superiore o uguale a un certo valore e molto scaricate
-apps_by_rating_downloads_high(RatingTh, DownloadsTh, AppName) :- 
-    app_rating_downloads(AppName, Rating, Downloads), Rating >= RatingTh, Downloads > DownloadsTh.
+% Predicato per trovare N app di successo e con valutazione superiore o uguale a un certo valore ordinate per download
+top_apps_by_rating(RatingTh, N, TopApps) :-
+    findall((AppName, Downloads, Rating), (app_success_rating_downloads(AppName, 'Very popular', Rating, Downloads), Rating >= RatingTh), AppsWithRating),
+    sort(2, @>=, AppsWithRating, SortedAppsWithRating),
+    take(N, SortedAppsWithRating, TopApps).
 
 % Predicato per ottenere una lista di N app sotto una certa soglia di prezzo e di una certa categoria
 apps_by_category_price(Category, PriceTh, N, TopApps) :- 
@@ -138,10 +125,11 @@ count_editors_choice(Category, Count) :-
     findall(AppName, app_category_edchoice(AppName, Category, 'True'), List),
     length(List, Count).
     
-% Predicato che restituisce una lista di N app di una specifica categoria che sono editor choice
+% Predicato che restituisce una lista di N app di una specifica categoria che sono editor choice e ordinate per download
 top_editors_choice(Category, N, AppList) :- 
-    findall(AppName, app_category_edchoice(AppName, Category, 'True'), List),
-    take(N, List, AppList).
+    findall((AppName, Downloads), app_category_edchoice_downloads(AppName, Category, 'True', Downloads), List),
+    sort(2, @>=, List, SortedList),
+    take(N, SortedList, AppList).
 
 % Predicato che restituisce una lista di N app di una specifica categoria ordinate per numero di download
 top_downloads_by_category(Category, N, AppList) :- 
@@ -178,7 +166,7 @@ categories_ranked_by_rating(TotalRatingList) :-
     sort(2, @>=, List, TotalRatingList).
 
 % Predicato che restituisce una lista di N app più costose con maggior numero di download
-top_price_downloads(N, SortedByDownloads) :-
+top_expensive_downloads(N, SortedByDownloads) :-
     findall((AppName, Price, Downloads), app_price_downloads(AppName, Price, Downloads), List),
     sort(2, @>=, List, SortedByPrice),
     take(N, SortedByPrice, TopApps),
@@ -199,18 +187,6 @@ top_developers_by_success(Category, N, TopDevList) :-
     list_to_set(DevCountList, DevCountUniqueList),
     sort(2, @>=, DevCountUniqueList, SortedDevCountList),
     take(N, SortedDevCountList, TopDevList).
-    
-% Predicato che restituisce una lista di app più di successo, con acquisti in app e ordinate per numero di download
-top_success_purchases_downloads(N, TopApps) :-
-    findall((AppName, Downloads), app_success_purchases_downloads(AppName, 'Very popular', 'True', Downloads), List),
-    sort(2, @>=, List, SortedList),
-    take(N, SortedList, TopApps).
-    
-% Predicato che restituisce la lista di app più di successo senza pubblicità e ordinate per download 
-top_success_ad_downloads(N, TopApps) :-
-    findall((AppName, Downloads), app_success_ad_downloads(AppName, 'Very popular', 'False', Downloads), List),
-    sort(2, @>=, List, SortedList),
-    take(N, SortedList, TopApps).
 """
 
 write_rules(rules)
