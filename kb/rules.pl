@@ -13,7 +13,12 @@ count_occurrences(Elem, [Elem|Tail], Count) :-
 count_occurrences(Elem, [Head|Tail], Count) :-
     Elem \= Head,
     count_occurrences(Elem, Tail, Count).
-    
+
+% Predicato che conta il numero totale di app per uno sviluppatore
+count_apps_by_developer(Dev, Count) :-
+    findall(AppName, app_developer(AppName, Dev), AppList),
+    length(AppList, Count).
+
 % Predicato per ottenere una lista di N app entro una certa soglia di prezzo e con una valutazione superiore o uguale a un certo valore
 top_rating_price(RatingTh, PriceTh, N, TopApps) :- 
     findall((AppName, Rating, Price), (app_rating_price(AppName, Rating, Price), Price =< PriceTh, Rating >= RatingTh), AppList),
@@ -24,7 +29,9 @@ top_rating_price(RatingTh, PriceTh, N, TopApps) :-
 top_downloads_by_developer(Dev, N, TopAppsWithDownloads) :-
     findall((AppName, Downloads), app_developer_downloads(AppName, Dev, Downloads), AppsWithDownloads),
     sort(2, @>=, AppsWithDownloads, SortedAppsWithDownloads),
-    take(N, SortedAppsWithDownloads, TopAppsWithDownloads).
+    % trasforma Downloads in stringa con atom_string
+    maplist([Tuple, NewTuple]>>(Tuple = (A,IntegerB), atom_string(IntegerB, StringB), NewTuple = (A,StringB)), SortedAppsWithDownloads, ConvertedList),
+    take(N, ConvertedList, TopAppsWithDownloads).
     
 % Predicato per ottenere una lista di N app con rating maggiore o uguale ad un certo valore ma poco scaricate
 top_rating_low_downloads(RatingTh, N, TopApps) :-
@@ -37,7 +44,8 @@ top_rating_low_downloads(RatingTh, N, TopApps) :-
 top_apps_by_rating(RatingTh, N, TopApps) :-
     findall((AppName, Downloads, Rating), (app_success_rating_downloads(AppName, 'Very popular', Rating, Downloads), Rating >= RatingTh), AppsWithRating),
     sort(2, @>=, AppsWithRating, SortedAppsWithRating),
-    take(N, SortedAppsWithRating, TopApps).
+    maplist([Tuple, NewTuple]>>(Tuple = (A,IntegerB,C), atom_string(IntegerB, StringB), NewTuple = (A,StringB,C)), SortedAppsWithRating, ConvertedList),
+    take(N, ConvertedList, TopApps).
 
 % Predicato per ottenere una lista di N app sotto una certa soglia di prezzo e di una certa categoria
 apps_by_category_price(Category, PriceTh, N, TopApps) :- 
@@ -72,7 +80,8 @@ categories_ranked_by_downloads(TotalDownloadsList) :-
     findall(Category, app_category(_, Category), Categories),
     list_to_set(Categories, UniqueCategories),
     findall((Category, TotalDownloads), (member(Category, UniqueCategories), sum_downloads_by_category(Category, TotalDownloads)), List),
-    sort(2, @>=, List, TotalDownloadsList).
+    sort(2, @>=, List, SortedList),
+    maplist([Tuple, NewTuple]>>(Tuple = (A,IntegerB), atom_string(IntegerB, StringB), NewTuple = (A,StringB)), SortedList, TotalDownloadsList).
 
 % Predicato che calcola il rating medio per una categoria specifica
 avg_rating_by_category(Category, AvgRating) :-
@@ -100,9 +109,11 @@ top_expensive_downloads(N, SortedByDownloads) :-
 
 % Predicato che trova le app gratuite con maggior numero di download
 top_free_downloads(N, TopApps) :-
-    findall((AppName, Downloads), app_price_downloads(AppName, 0.0, Downloads), List),
-    sort(2, @>=, List, SortedList),
-    take(N, SortedList, TopApps).
+    findall((AppName, Downloads), app_price_downloads(AppName, 0.0, Downloads), AppList),
+    sort(2, @>=, AppList, SortedList),
+    % Trasforma Downloads in stringa con atom_string
+    maplist([Tuple, NewTuple]>>(Tuple = (A,IntegerB), atom_string(IntegerB, StringB), NewTuple = (A,StringB)), SortedList, ConvertedList),
+    take(N, ConvertedList, TopApps).
     
 % Predicato che restituisce la lista degli sviluppatori con più app di successo in una categoria
 top_developers_by_success(Category, N, TopDevList) :-
