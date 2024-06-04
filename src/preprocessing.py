@@ -65,14 +65,27 @@ def scrape_unrated_apps(df):
                 df.drop(index, inplace=True)
 
 
+def convert_size(df):
+    df["Size (MB)"] = df["Size (MB)"].str.replace(',', '')
+    df.loc[df["Size (MB)"].str.endswith('k'), "Size (MB)"] = df.loc[df["Size (MB)"].str.endswith('k'), "Size (MB)"].apply(
+        lambda x: str(float(x[:-1]) / 1024) + 'M')
+    df.loc[df["Size (MB)"].str.endswith('G'), "Size (MB)"] = df.loc[df["Size (MB)"].str.endswith('G'), "Size (MB)"].apply(
+        lambda x: str(float(x[:-1]) * 1024) + 'M')
+    df.loc[df["Size (MB)"].str.endswith('M'), "Size (MB)"] = df.loc[df["Size (MB)"].str.endswith('M'), "Size (MB)"].apply(lambda x: x[:-1])
+    df["Size (MB)"] = df["Size (MB)"].apply(lambda x: round(float(x), 2) if x != "Varies with device" else x)
+
+
 def clean(df):
     df.drop(["Installs", "Minimum Installs", "Free", "Developer Email",
              "Developer Website", "Released", "Privacy Policy", "Scraped Time"], axis=1, inplace=True)
 
     df.rename(columns={"Maximum Installs": "Downloads"}, inplace=True)
+    df.rename(columns={"Price": "Price ($)"}, inplace=True)
+    df.rename(columns={"Size (MB)": "Size (MB)"}, inplace=True)
 
     df.drop(df[df["Downloads"] < 1000].index, inplace=True)
     df.drop(df[df["Rating Count"] < 50].index, inplace=True)
+    df.drop("Currency", axis=1, inplace=True)
 
     # controlla contains_foreign_characters per ogni riga di "App Name" e se restituisce True, elimina la riga
     df.drop(df[df["App Name"].apply(contains_foreign_characters)].index, inplace=True)
@@ -86,14 +99,12 @@ def clean(df):
     # controllo inconsistenze tra Rating Count e Downloads
     df.drop(df[df["Rating Count"] > df["Downloads"]].index, inplace=True)
 
-    df.loc[(df["Price"] == 0) & (df["Currency"] != "USD"), "Currency"] = "USD"
-
     df.loc[pd.isnull(df["Minimum Android"]), "Minimum Android"] = "Varies with device"
 
     # aggiunta manuale delle dimensioni mancanti
-    df.loc[df["App Id"] == "com.cuberobotics.susu", "Size"] = "16.4M"
-    df.loc[df["App Id"] == "com.zkteco.intelitime", "Size"] = "2.9M"
-    df.loc[df["App Id"] == "com.dormstudios.away", "Size"] = "Varies with device"
+    df.loc[df["App Id"] == "com.cuberobotics.susu", "Size (MB)"] = "16.4M"
+    df.loc[df["App Id"] == "com.zkteco.intelitime", "Size (MB)"] = "2.9M"
+    df.loc[df["App Id"] == "com.dormstudios.away", "Size (MB)"] = "Varies with device"
 
     scrape_unrated_apps(df)
     # aggiunta manuale dei Content Rating non specificati
@@ -106,6 +117,7 @@ def clean(df):
 
     # raggruppamento delle Categorie
     group_categories(df)
+    convert_size(df)
 
 
 def add_success_rate(df):
