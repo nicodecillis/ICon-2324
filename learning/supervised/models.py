@@ -1,6 +1,7 @@
 import pandas as pd
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split, cross_val_score
 from sklearn.preprocessing import OrdinalEncoder
 
 
@@ -18,13 +19,15 @@ def decision_tree(training, target):
     grid_search_tree = GridSearchCV(
         estimator=tree,
         param_grid=parameters_tree,
-        scoring="accuracy",
+        scoring="accuracy",     # sceglie modello migliore in base all'accuratezza
         n_jobs=-1,
-        cv=5)
+        cv=5,   # 5-fold cross validation (o 10?)
+        refit=True)    # refit=True: retraining del modello migliore su tutto il dataset
 
     grid_search_tree.fit(x_train, y_train)
     print("Best parameters found: ", grid_search_tree.best_params_)
-    return grid_search_tree
+    best_decision_tree = grid_search_tree.best_estimator_
+    return best_decision_tree
 
 
 df = pd.read_csv("../../dataset/balanced-playstore-apps.csv")
@@ -39,19 +42,18 @@ categorical_features = ["App Name", "App Id", "Category", "Minimum Android", "De
 encoder = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
 df[categorical_features] = encoder.fit_transform(df[categorical_features])
 
-
 training = df.drop("Success Rate", axis=1)
 target = df["Success Rate"]
 
+best_dtc = decision_tree(training, target)
+cross_val_score(best_dtc, training, target, cv=5)   # 5-fold cross validation (o 10?)
+confusion_matrix(target, best_dtc.predict(training))
 
-decision_tree(training, target)
+print(classification_report(target, best_dtc.predict(training)))
+print("accuracy score:" , accuracy_score(target, best_dtc.predict(training)))
 
-"""
-cross_val_score_plot(cross_val_score(best_dtc, X, y, cv=k), "decision_tree", save=True, display=False)
-confusion_matrix_plot(confusion_matrix(y, best_y_pred, labels=LABELS), LABELS, "decision_tree", save=True,
-                      display=False)
-report = classification_report(y, best_y_pred)
-return "Decision Tree\n" + "criteria: " + best_criterion + "\nmax_depth: " + str(
-    best_max_depth) + "\nmin_samples_split: " + str(best_min_samples_split) + "\nmin_samples_leaf: " + str(
-    best_min_samples_leaf) + "\n" + report + "\n"
-"""
+
+
+
+
+
