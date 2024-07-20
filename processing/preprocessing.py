@@ -2,7 +2,9 @@ import pandas as pd
 import emoji
 from google_play_scraper import app
 import google_play_scraper.exceptions
-from success_calculation import calculate_success
+import sys
+sys.path.append('.')
+from src.utils import add_success_rate_in_rows
 
 
 def group_categories(df):
@@ -120,12 +122,12 @@ def clean(df):
     convert_size(df)
 
 
-def add_success_rate(df):
+def add_success_rate_col(df):
     df['Success Rate'] = None
-    calculate_success(df)
+    add_success_rate_in_rows(df)
 
 
 dataset = pd.read_csv("../dataset/playstore-apps.csv")
 clean(dataset)
-add_success_rate(dataset)
+add_success_rate_col(dataset)
 dataset.to_csv("dataset/preprocessed-playstore-apps.csv", index=False)
