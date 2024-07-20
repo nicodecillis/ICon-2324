@@ -48,7 +48,7 @@ def scatter_plot(df, x, y, title):
 
 
 def correlation_matrix(df, title):
-    df = df[["Rating", "Rating Count", "Downloads", "Price", "Ad Supported",
+    df = df[["Rating", "Rating Count", "Downloads", "Price ($)", "Ad Supported",
              "In App Purchases", "Editors Choice", "Success Rate"]]
     df = pd.get_dummies(df, columns=["Success Rate"])
     plt.figure(figsize=(15, 5))

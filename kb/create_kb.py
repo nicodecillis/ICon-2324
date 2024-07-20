@@ -25,7 +25,7 @@ def write_facts(df):
         for index, row in df.iterrows():
             app_id = str(row['App Id'])
             app_name = str(row['App Name'])
-            price = row['Price']
+            price = row['Price ($)']
             rating = row['Rating']
             downloads = row['Downloads']
             developer_id = str(row['Developer Id'])
