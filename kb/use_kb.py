@@ -1,6 +1,10 @@
+import sys
 from string import capwords
 from pyswip import Prolog
 from pyswip.prolog import PrologError
+sys.path.append('.')
+from src.utils import print_table
+
 
 categories = ["Auto & Vehicles", "Beauty", "Communication", "Creativity", "Dating", "Education", "Entertainment",
               "Events", "Finance", "Food & Drink", "Games", "Health & Fitness", "House & Home", "Lifestyle",
@@ -296,17 +300,6 @@ def clean_data_three_col(res, key):
             value1 = value1.strip("b'")
         cleaned_data.append((name, value1, value2))
     return cleaned_data
-
-
-def print_table(data, headers, separator="-"):
-    col_widths = [max(len(str(item)) for item in col) for col in zip(*data, headers)]
-    header_row = " | ".join(f"{header:<{col_widths[i]}}" for i, header in enumerate(headers))
-    print(separator * len(header_row))
-    print(header_row)
-    print(separator * len(header_row))
-    for row in data:
-        print(" | ".join(f"{str(item):<{col_widths[i]}}" for i, item in enumerate(row)))
-    print(separator * len(header_row), "\n")
 
 
 use_kb()
