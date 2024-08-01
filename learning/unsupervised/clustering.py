@@ -18,4 +18,5 @@ def elbow_method(data, max_clusters=10):
 
 
 df = pd.read_csv("../../dataset/encoded-playstore-apps.csv", na_filter=False)
+df = df.drop(columns=["App Id", "Developer Id", "Minimum Android", "Last Updated"], axis=1)
 elbow_method(df)

@@ -8,12 +8,42 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.linear_model import RidgeClassifierCV
+import joblib
+
+
+def save_results(title, best_params, y_test, y_pred_test, accuracy):
+    with open("results/" + title + ".txt", "w") as file:
+        file.write("Best parameters found: " + str(best_params) + "\n")
+        file.write("Accuracy: " + str(accuracy) + "\n")
+        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
+        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+
+
+def compare_accuracy(tree_accuracy, knn_accuracy, gau_accuracy, svm_accuracy, rf_accuracy, ada_accuracy, nn_accuracy):
+    accuracies = {
+        "tree": tree_accuracy,
+        "knn": knn_accuracy,
+        "gau": gau_accuracy,
+        "svm": svm_accuracy,
+        "rf": rf_accuracy,
+        "ada": ada_accuracy,
+        "nn": nn_accuracy
+    }
+    best_model = max(accuracies, key=accuracies.get)
+    return best_model
+
+
+def save_model(model, filename):
+    joblib.dump(model, filename)
 
 
 def decision_tree(training, target):
     x_train, x_test, y_train, y_test = train_test_split(training, target, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     tree = DecisionTreeClassifier()
     parameters_tree = {
@@ -30,22 +60,24 @@ def decision_tree(training, target):
         scoring="accuracy",
         n_jobs=-1,
         cv=10,
-        refit=True
+        refit=True,
+        verbose=3
     )
 
     grid_search_tree.fit(x_train, y_train)
     best_decision_tree = grid_search_tree.best_estimator_
+    best_params = grid_search_tree.best_params_
     y_pred_test = best_decision_tree.predict(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred_test)
 
-    with open("results/decision_tree.txt", "w") as file:
-        file.write("Best parameters found: " + str(grid_search_tree.best_params_) + "\n")
-        file.write("Accuracy: " + str(metrics.accuracy_score(y_test, y_pred_test)) + "\n")
-        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
-        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+    return best_decision_tree, best_params, y_test, y_pred_test, accuracy
 
 
 def knn(training, target):
     x_train, x_test, y_train, y_test = train_test_split(training, target, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     knn = KNeighborsClassifier()
     parameters_knn = {
@@ -59,22 +91,24 @@ def knn(training, target):
         scoring="accuracy",
         n_jobs=-1,
         cv=10,
-        refit=True
+        refit=True,
+        verbose=3
     )
 
     grid_search_knn.fit(x_train, y_train)
     best_knn = grid_search_knn.best_estimator_
+    best_params = grid_search_knn.best_params_
     y_pred_test = best_knn.predict(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred_test)
 
-    with open("results/knn.txt", "w") as file:
-        file.write("Best parameters found: " + str(grid_search_knn.best_params_) + "\n")
-        file.write("Accuracy: " + str(metrics.accuracy_score(y_test, y_pred_test)) + "\n")
-        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
-        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+    return best_knn, best_params, y_test, y_pred_test, accuracy
 
 
 def gaussian_nb(training, target):
     x_train, x_test, y_train, y_test = train_test_split(training, target, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     gau = GaussianNB()
     parameters_gau = {'var_smoothing': np.logspace(0, -9, num=200)}
@@ -85,21 +119,23 @@ def gaussian_nb(training, target):
         n_jobs=-1,
         cv=10,
         refit=True,
+        verbose=3
     )
 
     grid_search_gau.fit(x_train, y_train)
     best_gau = grid_search_gau.best_estimator_
+    best_params = grid_search_gau.best_params_
     y_pred_test = best_gau.predict(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred_test)
 
-    with open("results/gaussian_nb.txt", "w") as file:
-        file.write("Best parameters found: " + str(grid_search_gau.best_params_) + "\n")
-        file.write("Accuracy: " + str(metrics.accuracy_score(y_test, y_pred_test)) + "\n")
-        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
-        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+    return best_gau, best_params, y_test, y_pred_test, accuracy
 
 
 def support_vector_machine(training, target):
     x_train, x_test, y_train, y_test = train_test_split(training, target, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     svm = SVC()
     parameters_svm = {
@@ -120,17 +156,18 @@ def support_vector_machine(training, target):
 
     grid_search_svm.fit(x_train, y_train)
     best_svm = grid_search_svm.best_estimator_
+    best_params = grid_search_svm.best_params_
     y_pred_test = best_svm.predict(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred_test)
 
-    with open("results/svm.txt", "w") as file:
-        file.write("Best parameters found: " + str(grid_search_svm.best_params_) + "\n")
-        file.write("Accuracy: " + str(metrics.accuracy_score(y_test, y_pred_test)) + "\n")
-        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
-        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+    return best_svm, best_params, y_test, y_pred_test, accuracy
 
 
 def random_forest(training, target):
     x_train, x_test, y_train, y_test = train_test_split(training, target, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     rf = RandomForestClassifier()
     parameters_rf = {
@@ -153,25 +190,25 @@ def random_forest(training, target):
 
     grid_search_rf.fit(x_train, y_train)
     best_rf = grid_search_rf.best_estimator_
+    best_params = grid_search_rf.best_params_
     y_pred_test = best_rf.predict(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred_test)
 
-    with open("results/random_forest.txt", "w") as file:
-        file.write("Best parameters found: " + str(grid_search_rf.best_params_) + "\n")
-        file.write("Accuracy: " + str(metrics.accuracy_score(y_test, y_pred_test)) + "\n")
-        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
-        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+    return best_rf, best_params, y_test, y_pred_test, accuracy
 
 
 def ada_boost(training, target):
     x_train, x_test, y_train, y_test = train_test_split(training, target, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     ada = AdaBoostClassifier()
     parameters_ada = {
         'n_estimators': (50, 100, 200, 300),
         'learning_rate': (0.01, 0.1, 0.5, 1, 1.5),
         'algorithm': ['SAMME'],
-        'estimator': (GaussianNB(), DecisionTreeClassifier(max_depth=1), DecisionTreeClassifier(max_depth=3),
-                      DecisionTreeClassifier(max_depth=5), RidgeClassifierCV())
+        'estimator': (GaussianNB(), RidgeClassifierCV(), DecisionTreeClassifier(), RandomForestClassifier())
     }
 
     grid_search_ada = GridSearchCV(
@@ -186,26 +223,27 @@ def ada_boost(training, target):
 
     grid_search_ada.fit(x_train, y_train)
     best_ada = grid_search_ada.best_estimator_
+    best_params = grid_search_ada.best_params_
     y_pred_test = best_ada.predict(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred_test)
 
-    with open("results/ada_boost.txt", "w") as file:
-        file.write("Best parameters found: " + str(grid_search_ada.best_params_) + "\n")
-        file.write("Accuracy: " + str(metrics.accuracy_score(y_test, y_pred_test)) + "\n")
-        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
-        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+    return best_ada, best_params, y_test, y_pred_test, accuracy
 
 
 def neural_network(training, target):
     x_train, x_test, y_train, y_test = train_test_split(training, target, test_size=0.3, random_state=42)
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
 
     nn = MLPClassifier()
     parameters_nn = {
-        'hidden_layer_sizes': [(200, 100, 50, 25)],
+        'hidden_layer_sizes': [(50,), (120, 80, 40)],     # (150,100,50), (100, 50, 30), (10,)
         'activation': ['tanh', 'relu'],
         'solver': ['sgd', 'adam'],
-        'alpha': [0.0001, 0.001],
+        'alpha': [0.001, 0.05],     # 0.0001
         'learning_rate': ['constant', 'adaptive'],
-        'max_iter': [700]
+        'max_iter': [1000]
     }
 
     grid_search_nn = GridSearchCV(
@@ -220,13 +258,11 @@ def neural_network(training, target):
 
     grid_search_nn.fit(x_train, y_train)
     best_nn = grid_search_nn.best_estimator_
+    best_params = grid_search_nn.best_params_
     y_pred_test = best_nn.predict(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred_test)
 
-    with open("results/neural_network.txt", "w") as file:
-        file.write("Best parameters found: " + str(grid_search_nn.best_params_) + "\n")
-        file.write("Accuracy: " + str(metrics.accuracy_score(y_test, y_pred_test)) + "\n")
-        file.write("Confusion matrix:\n" + str(metrics.confusion_matrix(y_test, y_pred_test)) + "\n")
-        file.write("Classification report:\n" + str(metrics.classification_report(y_test, y_pred_test)) + "\n")
+    return best_nn, best_params, y_test, y_pred_test, accuracy
 
 
 df = pd.read_csv("../../dataset/balanced-playstore-apps.csv", na_filter=False)
@@ -241,15 +277,35 @@ categorical_features = ["App Name", "App Id", "Category", "Minimum Android", "De
 encoder = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
 df[categorical_features] = encoder.fit_transform(df[categorical_features])
 
-training = df.drop(columns=["Downloads", "Rating Count", "Rating", "Success Rate", "Last Updated"], axis=1)
+training = df.drop(columns=["Downloads", "Rating Count", "Rating", "Editors Choice", "Success Rate"], axis=1)
 target = df["Success Rate"]
 
-df.to_csv("../../dataset/encoded-playstore-apps.csv", index=False)
+# Dataset numerico per recommender system e prediction
+encoded_df = pd.concat([df[["App Name", "App Id", "Category", "Price ($)", "Rating", "Downloads", "Content Rating",
+                            "Developer Id", "Minimum Android", "Last Updated", "Editors Choice"]], target], axis=1)
+encoded_df.to_csv("../../dataset/encoded-playstore-apps.csv", index=False)
 
-# decision_tree(training, target)
-# knn(training, target)
-# gaussian_nb(training, target)
-# support_vector_machine(training, target)
-# random_forest(training, target)
-# ada_boost(training, target)
-# neural_network(training, target)
+
+'''best_tree, best_tree_params, y_test_tree, y_pred_test_tree, tree_accuracy = decision_tree(training, target)
+save_results("decision_tree", best_tree_params, y_test_tree, y_pred_test_tree, tree_accuracy)
+
+best_knn, best_knn_params, y_test_knn, y_pred_test_knn, knn_accuracy = knn(training, target)
+save_results("knn", best_knn_params, y_test_knn, y_pred_test_knn, knn_accuracy)
+
+best_gau, best_gau_params, y_test_gau, y_pred_test_gau, gau_accuracy = gaussian_nb(training, target)
+save_results("gaussian_nb", best_gau_params, y_test_gau, y_pred_test_gau, gau_accuracy)
+
+best_svm, best_svm_params, y_test_svm, y_pred_test_svm, svm_accuracy = support_vector_machine(training, target)
+save_results("svm", best_svm_params, y_test_svm, y_pred_test_svm, svm_accuracy)
+
+best_rf, best_rf_params, y_test_rf, y_pred_test_rf, rf_accuracy = random_forest(training, target)
+save_results("random_forest", best_rf_params, y_test_rf, y_pred_test_rf, rf_accuracy)
+
+best_ada, best_ada_params, y_test_ada, y_pred_test_ada, ada_accuracy = ada_boost(training, target)
+save_results("ada_boost", best_ada_params, y_test_ada, y_pred_test_ada, ada_accuracy)
+
+best_nn, best_nn_params, y_test_nn, y_pred_test_nn, nn_accuracy = neural_network(training, target)
+save_results("neural_network", best_nn_params, y_test_nn, y_pred_test_nn, nn_accuracy)
+
+best_model = compare_accuracy(tree_accuracy, knn_accuracy, gau_accuracy, svm_accuracy, rf_accuracy, ada_accuracy, nn_accuracy)
+save_model(globals()["best_" + best_model], "results/best_model.joblib")'''

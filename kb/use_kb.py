@@ -1,9 +1,10 @@
 import sys
+import os
+from src.utils import print_table
 from string import capwords
 from pyswip import Prolog
 from pyswip.prolog import PrologError
 sys.path.append('.')
-from src.utils import print_table
 
 
 categories = ["Auto & Vehicles", "Beauty", "Communication", "Creativity", "Dating", "Education", "Entertainment",
@@ -20,8 +21,14 @@ def print_categories():
 
 def use_kb():
     prolog = Prolog()
-    prolog.consult("facts.pl")
-    prolog.consult("rules.pl")
+
+    current_dir = os.path.dirname(__file__)
+
+    facts_path = os.path.join(current_dir, "facts.pl").replace("\\", "/")
+    rules_path = os.path.join(current_dir, "rules.pl").replace("\\", "/")
+
+    prolog.consult(facts_path)
+    prolog.consult(rules_path)
 
     print("Benvenuto!")
     execute = True
@@ -42,7 +49,7 @@ def use_kb():
         print("11. Ordina tutte le categorie per valutazione media")
         print("12. Ordina tutte le categorie per numero totale di download")  # DA RIVEDERE
         print("13. Cerca gli sviluppatori con più app di successo in una specifica categoria")
-        print("X. Uscita\n")
+        print("X. Torna al menu principale\n")
 
         choice = input("Scegli un'opzione: ")
         try:
@@ -186,7 +193,6 @@ def use_kb():
                         print("Inserisci un numero di sviluppatori inferiore.\n")
 
             elif choice.upper() == "X":
-                print("Arrivederci!")
                 execute = False
 
             else:
@@ -300,6 +306,3 @@ def clean_data_three_col(res, key):
             value1 = value1.strip("b'")
         cleaned_data.append((name, value1, value2))
     return cleaned_data
-
-
-use_kb()
