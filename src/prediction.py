@@ -11,6 +11,7 @@ def predict(app_name, app_id, category, price, size, min_version, developer, con
     else:
         encoded_app_name = max(dict["App Name"].values()) + 1
 
+    # FIXME: si potrebbe evitare il controllo sull'App Id (avviene già nel main)
     if app_id in dict["App Id"]:
         encoded_app_id = dict["App Id"][app_id]
     else:

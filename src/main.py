@@ -127,7 +127,7 @@ def main(balanced_df, encoded_df):
 
             while True:
                 app_id = input("Inserisci il package name dell'app:\n").lower()
-                if app_id in balanced_df["App Id"]:
+                if app_id in balanced_df["App Id"].values:
                     print("Il package name inserito è stato già assegnato ad un'altra app. Riprova con uno univoco.")
                 elif app_id == "":
                     print("Package name non valido. Riprova.")
@@ -244,8 +244,11 @@ def main(balanced_df, encoded_df):
             print("La tua app potrebbe diventare " + success_rates[prediction_value] + "!\n")
 
         elif user_input == "3":
+            print("Caricamento della base di conoscenza...")
             use_kb()
 
+        else:
+            print("Input non valido. Riprova.")
 
 balanced_df = pd.read_csv("../dataset/balanced-playstore-apps.csv")
 encoded_df = pd.read_csv("../dataset/encoded-playstore-apps.csv")

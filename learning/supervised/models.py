@@ -183,7 +183,7 @@ def random_forest(training, target):
         param_grid=parameters_rf,
         scoring='accuracy',
         n_jobs=-1,
-        cv=5,
+        cv=10,
         refit=True,
         verbose=3
     )
@@ -238,12 +238,12 @@ def neural_network(training, target):
 
     nn = MLPClassifier()
     parameters_nn = {
-        'hidden_layer_sizes': [(50,), (120, 80, 40)],     # (150,100,50), (100, 50, 30), (10,)
+        'hidden_layer_sizes': [(10,), (50,), (120, 80, 40), (150, 100, 50)],     # (100, 50, 30)
         'activation': ['tanh', 'relu'],
         'solver': ['sgd', 'adam'],
         'alpha': [0.001, 0.05],     # 0.0001
         'learning_rate': ['constant', 'adaptive'],
-        'max_iter': [1000]
+        'max_iter': [1500]
     }
 
     grid_search_nn = GridSearchCV(
@@ -286,7 +286,7 @@ encoded_df = pd.concat([df[["App Name", "App Id", "Category", "Price ($)", "Rati
 encoded_df.to_csv("../../dataset/encoded-playstore-apps.csv", index=False)
 
 
-'''best_tree, best_tree_params, y_test_tree, y_pred_test_tree, tree_accuracy = decision_tree(training, target)
+best_tree, best_tree_params, y_test_tree, y_pred_test_tree, tree_accuracy = decision_tree(training, target)
 save_results("decision_tree", best_tree_params, y_test_tree, y_pred_test_tree, tree_accuracy)
 
 best_knn, best_knn_params, y_test_knn, y_pred_test_knn, knn_accuracy = knn(training, target)
@@ -308,4 +308,4 @@ best_nn, best_nn_params, y_test_nn, y_pred_test_nn, nn_accuracy = neural_network
 save_results("neural_network", best_nn_params, y_test_nn, y_pred_test_nn, nn_accuracy)
 
 best_model = compare_accuracy(tree_accuracy, knn_accuracy, gau_accuracy, svm_accuracy, rf_accuracy, ada_accuracy, nn_accuracy)
-save_model(globals()["best_" + best_model], "results/best_model.joblib")'''
+save_model(globals()["best_" + best_model], "results/best_model.joblib")
