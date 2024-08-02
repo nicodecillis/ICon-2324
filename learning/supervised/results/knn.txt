@@ -1,0 +1,19 @@
+Best parameters found: {'metric': 'manhattan', 'n_neighbors': 15, 'weights': 'uniform'}
+Accuracy: 0.424021164021164
+Confusion matrix:
+[[1407  629  498  164]
+ [ 928  906  672  269]
+ [ 752  729  861  308]
+ [ 153  163  178  833]]
+Classification report:
+              precision    recall  f1-score   support
+
+           1       0.43      0.52      0.47      2698
+           2       0.37      0.33      0.35      2775
+           3       0.39      0.32      0.35      2650
+           4       0.53      0.63      0.57      1327
+
+    accuracy                           0.42      9450
+   macro avg       0.43      0.45      0.44      9450
+weighted avg       0.42      0.42      0.42      9450
+

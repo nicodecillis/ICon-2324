@@ -1,0 +1,19 @@
+Best parameters found: {'var_smoothing': 0.2866067616948251}
+Accuracy: 0.3364021164021164
+Confusion matrix:
+[[  43 1074 1389  192]
+ [  51 1029 1377  318]
+ [  51  829 1417  353]
+ [  15  169  453  690]]
+Classification report:
+              precision    recall  f1-score   support
+
+           1       0.27      0.02      0.03      2698
+           2       0.33      0.37      0.35      2775
+           3       0.31      0.53      0.39      2650
+           4       0.44      0.52      0.48      1327
+
+    accuracy                           0.34      9450
+   macro avg       0.34      0.36      0.31      9450
+weighted avg       0.32      0.34      0.29      9450
+

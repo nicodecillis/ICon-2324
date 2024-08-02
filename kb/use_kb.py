@@ -30,7 +30,6 @@ def use_kb():
     prolog.consult(facts_path)
     prolog.consult(rules_path)
 
-    print("Benvenuto!")
     execute = True
     while execute:
         print("---- Esplorazione della Knowledge Base ----")

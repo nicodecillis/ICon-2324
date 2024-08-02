@@ -1,7 +1,6 @@
 import pandas as pd
 from kb.use_kb import use_kb
 from prediction import predict
-
 from utils import print_categories, print_content_ratings, calculate_norm_success, convert_success_rate, print_table
 from recommender import find_recommendations
 
@@ -159,9 +158,13 @@ def main(balanced_df, encoded_df):
                     print("Prezzo non valido. Riprova.")
 
             while True:
-                size_str = input("Quanto spazio occupa l'app in MB?\n")         # TODO: inserire Varies with Device
+                size_str = input("Quanto spazio occupa l'app in MB?\n"
+                                 "Se la dimensione dell'app dipende dal dispositivo, scrivi \"Varies with device\".\n").capitalize()
                 try:
-                    size = float(size_str)
+                    if size_str == "Varies with device":
+                        size = -1
+                    else:
+                        size = float(size_str)
                     break
                 except ValueError:
                     print("Dimensione non valida. Riprova.")
@@ -249,6 +252,7 @@ def main(balanced_df, encoded_df):
 
         else:
             print("Input non valido. Riprova.")
+
 
 balanced_df = pd.read_csv("../dataset/balanced-playstore-apps.csv")
 encoded_df = pd.read_csv("../dataset/encoded-playstore-apps.csv")
