@@ -1,8 +1,9 @@
 import pandas as pd
-from kb.use_kb import use_kb
-from prediction import predict
 from utils import print_categories, print_content_ratings, calculate_norm_success, convert_success_rate, print_table
 from recommender import find_recommendations
+from prediction import predict
+from beliefNetwork.bbn import build_network, InferenceController, collect_observations
+from kb.use_kb import use_kb
 
 categories = ["Auto & Vehicles", "Beauty", "Communication", "Creativity", "Dating", "Education", "Entertainment",
               "Events", "Finance", "Food & Drink", "Games", "Health & Fitness", "House & Home", "Lifestyle",
@@ -13,12 +14,15 @@ content_ratings = ["Everyone", "Teen", "Adults"]
 
 def main(balanced_df, encoded_df):
     exit = False
-    print("Benvenuto!\n")
+    print("Benvenuto!\nQuesto sistema è progettato per aiutare gli utenti e gli sviluppatori a fare scelte informate "
+          "nel \nmercato delle app, offrendo suggerimenti personalizzati e previsioni basate su analisi dei dati.\n")
+
     while not exit:
         print("Scegli una delle seguenti opzioni:\n"
               "1 - Raccomandazione di app simili\n"
               "2 - Predizione del tasso di successo di un app non ancora sul mercato\n"
-              "3 - Esplorazione della base di conoscenza\n"
+              "3 - Calcolo della probabilità di successo di un app non ancora sul mercato tramite belief network\n"
+              "4 - Esplorazione della base di conoscenza\n"
               "X - Esci")
 
         user_input = input()
@@ -117,6 +121,7 @@ def main(balanced_df, encoded_df):
             print_table(data_list, columns, paginate=True)
 
         elif user_input == "2":
+            print("Per predire il tasso di successo della tua app, rispondi alle seguenti domande:")
             while True:
                 app_name = input("Come si chiama la tua app?\n").lower()
                 if app_name == "":
@@ -238,7 +243,7 @@ def main(balanced_df, encoded_df):
                 except ValueError:
                     print("Data non valida. Riprova.")
 
-            prediction_value = predict(app_name, app_id, category, price, size, version, developer, content_rating,
+            prediction_value = predict(app_name, category, price, size, version, developer, content_rating,
                                        ad_supported, in_app_purchases, last_updated, balanced_df, encoded_df)
             success_rates = {1: "non molto popolare",
                              2: "mediamente popolare",
@@ -247,6 +252,12 @@ def main(balanced_df, encoded_df):
             print("La tua app potrebbe diventare " + success_rates[prediction_value] + "!\n")
 
         elif user_input == "3":
+            print("Per stimare la probabilità di successo della tua app, rispondi alle seguenti domande:")
+            bbn = build_network()
+            join_tree = InferenceController.apply(bbn)
+            collect_observations(join_tree)
+
+        elif user_input == "4":
             print("Caricamento della base di conoscenza...")
             use_kb()
 

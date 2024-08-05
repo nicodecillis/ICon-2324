@@ -277,7 +277,7 @@ categorical_features = ["App Name", "App Id", "Category", "Minimum Android", "De
 encoder = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
 df[categorical_features] = encoder.fit_transform(df[categorical_features])
 
-training = df.drop(columns=["Downloads", "Rating Count", "Rating", "Editors Choice", "Success Rate"], axis=1)
+training = df.drop(columns=["Downloads", "Rating", "Editors Choice", "Success Rate"], axis=1)
 target = df["Success Rate"]
 
 # Dataset numerico per recommender system e prediction

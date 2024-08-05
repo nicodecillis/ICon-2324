@@ -1,7 +1,7 @@
 import joblib
 
 
-def predict(app_name, app_id, category, price, size, min_version, developer, content_rating, ad_supported,
+def predict(app_name, category, price, size, min_version, developer, content_rating, ad_supported,
             in_app_purchases, last_updated, balanced_df, encoded_df):
 
     dict = map_categorical_to_numeric(balanced_df, encoded_df)

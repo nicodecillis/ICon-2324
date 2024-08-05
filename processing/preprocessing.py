@@ -100,6 +100,7 @@ def clean(df):
     scrape_rating_info(df)
     # controllo inconsistenze tra Rating Count e Downloads
     df.drop(df[df["Rating Count"] > df["Downloads"]].index, inplace=True)
+    df.drop("Rating Count", axis=1, inplace=True)
 
     df.loc[pd.isnull(df["Minimum Android"]), "Minimum Android"] = "Varies with device"
 
