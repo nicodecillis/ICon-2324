@@ -39,14 +39,14 @@ def use_kb():
         print("4. Cerca app di successo e con valutazione maggiore o uguale a un certo valore e ordinate per download")
         print("5. Cerca app sotto un certo prezzo e appartenenti ad una specifica categoria")
         print("6. Cerca app Editor's Choice appartenenti ad una specifica categoria e ordinate per download")
-        print("7. Cerca app gratuite e con maggior numero di download")  # DA RIVEDERE
+        print("7. Cerca app gratuite e con maggior numero di download")
         print("8. Cerca app più costose ordinate per download\n")
 
         print("---- Statistiche della Knowledge Base ----")
         print("9. Ottieni il numero di app Editor's Choice appartenenti ad una specifica categoria")
         print("10. Ottieni la valutazione media per una specifica categoria")
         print("11. Ordina tutte le categorie per valutazione media")
-        print("12. Ordina tutte le categorie per numero totale di download")  # DA RIVEDERE
+        print("12. Ordina tutte le categorie per numero totale di download")
         print("13. Cerca gli sviluppatori con più app di successo in una specifica categoria")
         print("X. Torna al menu principale\n")
 

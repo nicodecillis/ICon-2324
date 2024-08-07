@@ -1,10 +1,10 @@
 import joblib
 
 
-def predict(app_name, category, price, size, min_version, developer, content_rating, ad_supported,
-            in_app_purchases, last_updated, balanced_df, encoded_df):
+def predict(app_name, category, price, size, min_version, developer, content_rating, ad_supported, in_app_purchases,
+            last_updated, category_num_ec, category_avg_downloads, category_avg_rating, finalized_df, encoded_df):
 
-    dict = map_categorical_to_numeric(balanced_df, encoded_df)
+    dict = map_categorical_to_numeric(finalized_df, encoded_df)
 
     if app_name in dict["App Name"]:
         encoded_app_name = dict["App Name"][app_name]
@@ -41,7 +41,7 @@ def predict(app_name, category, price, size, min_version, developer, content_rat
     model = joblib.load("../learning/supervised/results/best_model.joblib")
     prediction = model.predict([[encoded_app_name, encoded_app_id, encoded_category, price, size, encoded_min_version,
                                  encoded_developer, encoded_content_rating, ad_supported, in_app_purchases,
-                                 encoded_last_updated]])
+                                 encoded_last_updated, category_num_ec, category_avg_downloads, category_avg_rating]])
     return prediction[0]
 
 

@@ -12,13 +12,13 @@ categories = ["Auto & Vehicles", "Beauty", "Communication", "Creativity", "Datin
 content_ratings = ["Everyone", "Teen", "Adults"]
 
 
-def main(balanced_df, encoded_df):
+def main(finalized_df, encoded_df):
     exit = False
     print("Benvenuto!\nQuesto sistema è progettato per aiutare gli utenti e gli sviluppatori a fare scelte informate "
-          "nel \nmercato delle app, offrendo suggerimenti personalizzati e previsioni basate su analisi dei dati.\n")
+          "nel \nmercato delle app, offrendo suggerimenti personalizzati e previsioni basate su analisi dei dati.")
 
     while not exit:
-        print("Scegli una delle seguenti opzioni:\n"
+        print("\nScegli una delle seguenti opzioni:\n"
               "1 - Raccomandazione di app simili\n"
               "2 - Predizione del tasso di successo di un app non ancora sul mercato\n"
               "3 - Calcolo della probabilità di successo di un app non ancora sul mercato tramite belief network\n"
@@ -42,10 +42,10 @@ def main(balanced_df, encoded_df):
 
             while True:
                 price_str = input("Cerchi un'app gratuita o a pagamento?\n").lower()
-                if "gratuita" in price_str or "gratis" in price_str:
+                if price_str == "gratuita" or price_str == "gratis":
                     price = 0
                     break
-                elif "pagamento" in price_str:
+                elif price_str == "a pagamento":
                     while True:
                         try:
                             price_str = input("Quanto pagheresti per l'app?\n")
@@ -78,10 +78,10 @@ def main(balanced_df, encoded_df):
                 print("Un'app \"Editor's Choice\" è un'app scelta dalla redazione come una delle app più "
                       "innovative, creative e degne di nota presenti nello store.")
                 chosen_editors_choice = input("Stai cercando un'app Editor's Choice?\n").lower()
-                if "si" in chosen_editors_choice or "sì" in chosen_editors_choice:
+                if chosen_editors_choice == "si" or chosen_editors_choice == "sì":
                     editors_choice = True
                     break
-                elif "no" in chosen_editors_choice:
+                elif chosen_editors_choice == "no":
                     editors_choice = False
                     break
                 else:
@@ -131,7 +131,7 @@ def main(balanced_df, encoded_df):
 
             while True:
                 app_id = input("Inserisci il package name dell'app:\n").lower()
-                if app_id in balanced_df["App Id"].values:
+                if app_id in finalized_df["App Id"].values:
                     print("Il package name inserito è stato già assegnato ad un'altra app. Riprova con uno univoco.")
                 elif app_id == "":
                     print("Package name non valido. Riprova.")
@@ -153,6 +153,10 @@ def main(balanced_df, encoded_df):
                     break
                 else:
                     print("Categoria non valida. Riprova.")
+
+            category_num_ec = finalized_df[finalized_df["Category"] == category]["Num Editors Choice in Category"].values[0]
+            category_avg_downloads = finalized_df[finalized_df["Category"] == category]["Average Downloads in Category"].values[0]
+            category_avg_rating = finalized_df[finalized_df["Category"] == category]["Average Rating of Category"].values[0]
 
             while True:
                 price_str = input("Quanto costa l'app in $?\n")
@@ -214,10 +218,10 @@ def main(balanced_df, encoded_df):
 
             while True:
                 chosen_ad_supported = input("L'applicazione include pubblicità?\n").lower()
-                if "si" in chosen_ad_supported or "sì" in chosen_ad_supported:
+                if chosen_ad_supported == "si" or chosen_ad_supported == "sì":
                     ad_supported = True
                     break
-                elif "no" in chosen_ad_supported:
+                elif chosen_ad_supported == "no":
                     ad_supported = False
                     break
                 else:
@@ -225,10 +229,10 @@ def main(balanced_df, encoded_df):
 
             while True:
                 chosen_app_purchases = input("L'applicazione prevede acquisti in-app?\n").lower()
-                if "si" in chosen_app_purchases or "sì" in chosen_app_purchases:
+                if chosen_app_purchases == "si" or chosen_app_purchases == "sì":
                     in_app_purchases = True
                     break
-                elif "no" in chosen_app_purchases:
+                elif chosen_app_purchases == "no":
                     in_app_purchases = False
                     break
                 else:
@@ -243,13 +247,14 @@ def main(balanced_df, encoded_df):
                 except ValueError:
                     print("Data non valida. Riprova.")
 
-            prediction_value = predict(app_name, category, price, size, version, developer, content_rating,
-                                       ad_supported, in_app_purchases, last_updated, balanced_df, encoded_df)
+            target_predicted = predict(app_name, category, price, size, version, developer, content_rating,
+                                       ad_supported, in_app_purchases, last_updated, category_num_ec,
+                                       category_avg_downloads, category_avg_rating, finalized_df, encoded_df)
             success_rates = {1: "non molto popolare",
                              2: "mediamente popolare",
                              3: "popolare",
                              4: "molto popolare"}
-            print("La tua app potrebbe diventare " + success_rates[prediction_value] + "!\n")
+            print("La tua app potrebbe diventare " + success_rates[target_predicted] + "!")
 
         elif user_input == "3":
             print("Per stimare la probabilità di successo della tua app, rispondi alle seguenti domande:")
@@ -265,6 +270,6 @@ def main(balanced_df, encoded_df):
             print("Input non valido. Riprova.")
 
 
-balanced_df = pd.read_csv("../dataset/balanced-playstore-apps.csv")
+finalized_df = pd.read_csv("../dataset/finalized-playstore-apps.csv")
 encoded_df = pd.read_csv("../dataset/encoded-playstore-apps.csv")
-main(balanced_df, encoded_df)
+main(finalized_df, encoded_df)

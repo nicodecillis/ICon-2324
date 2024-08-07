@@ -168,6 +168,15 @@ avg_rating_by_category(Category, AvgRating) :-
     AvgRatingRaw is TotalRating / N,
     format(atom(AvgRatingAtom), '~2f', [AvgRatingRaw]),
     atom_number(AvgRatingAtom, AvgRating).
+    
+% Predicato che calcola i download medi di una categoria specifica
+avg_downloads_by_category(Category, AvgDownloads) :-
+    findall(Downloads, app_category_downloads(_, Category, Downloads), DownloadList),
+    sumlist(DownloadList, TotalDownloads),
+    length(DownloadList, N),
+    AvgDownloadsRaw is TotalDownloads / N,
+    format(atom(AvgDownloadsAtom), '~0f', [AvgDownloadsRaw]),
+    atom_number(AvgDownloadsAtom, AvgDownloads).
 
 % Predicato che ordina le categorie per rating medio
 categories_ranked_by_rating(TotalRatingList) :-

@@ -16,7 +16,7 @@ def find_recommendations(app_name, category, rating, downloads, price, content_r
     balanced_df = balanced_df.drop_duplicates(subset="App Id", keep="first")
     balanced_df = balanced_df[balanced_df["Category"] == category]
     balanced_df.reset_index(drop=True, inplace=True)
-    balanced_df = balanced_df.drop(columns=["App Id", "Rating Count", "Size (MB)", "Minimum Android", "Developer Id",
+    balanced_df = balanced_df.drop(columns=["App Id", "Size (MB)", "Minimum Android", "Developer Id",
                                             "Last Updated", "Ad Supported", "In App Purchases", "Category"], axis=1)
 
     # Codifica dataset e input utente in valori numerici

@@ -153,19 +153,19 @@ def prediction(tree):
             print("La probabilità di successo dell'app è pari a " + str(round(max[1] * 100, 1)) + "%")
             if max[1] < 0.3:
                 print("Probabilità di successo bassa.\nContinua a migliorare e a credere nella tua visione, "
-                      "perché anche i più grandi successi sono partiti da sfide enormi.\n")
+                      "perché anche i più grandi successi sono partiti da sfide enormi.")
             elif max[1] < 0.4:
                 print("Probabilità di successo medio-bassa.\nLa tua app ha già una buona base di partenza. Ogni passo "
                       "avanti è un'opportunità per apprendere e crescere.\nCon dedizione e determinazione, puoi "
-                      "trasformare il potenziale della tua app in un successo concreto.\n")
+                      "trasformare il potenziale della tua app in un successo concreto.")
             elif max[1] < 0.5:
                 print("Probabilità di successo media.\nSei sulla strada giusta!\nCon ulteriori perfezionamenti e "
-                      "maggior impegno, puoi fare la differenza e raggiungere livelli di successo ancora più alti.\n")
+                      "maggior impegno, puoi fare la differenza e raggiungere livelli di successo ancora più alti.")
             elif max[1] < 0.7:
                 print(
                     "Probabilità di successo medio-alta.\nContinua a lavorare sodo e a perfezionare ogni aspetto della "
-                    "tua app.\nSei a un passo dal trasformare la tua app in un vero successo!\n")
+                    "tua app.\nSei a un passo dal trasformare la tua app in un vero successo!")
             else:
                 print("Probabilità di successo alta.\nOttimo lavoro! Le probabilità di successo della tua app sono "
                       "eccellenti.\nMantieni questo ritmo e continua a innovare; il successo è dietro l'angolo e il "
-                      "tuo impegno sarà sicuramente ricompensato.\n")
+                      "tuo impegno sarà sicuramente ricompensato.")

@@ -265,7 +265,7 @@ def neural_network(training, target):
     return best_nn, best_params, y_test, y_pred_test, accuracy
 
 
-df = pd.read_csv("../../dataset/balanced-playstore-apps.csv", na_filter=False)
+df = pd.read_csv("../../dataset/finalized-playstore-apps.csv", na_filter=False)
 df["Success Rate"] = df["Success Rate"].replace("Not very popular", 1)
 df["Success Rate"] = df["Success Rate"].replace("Mildly popular", 2)
 df["Success Rate"] = df["Success Rate"].replace("Popular", 3)
