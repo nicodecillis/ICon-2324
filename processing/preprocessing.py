@@ -78,26 +78,25 @@ def convert_size(df):
 
 
 def clean(df):
-    df.drop(["Installs", "Minimum Installs", "Free", "Developer Email",
+    df.drop(["Installs", "Minimum Installs", "Free", "Currency", "Developer Email",
              "Developer Website", "Released", "Privacy Policy", "Scraped Time"], axis=1, inplace=True)
 
     df.rename(columns={"Maximum Installs": "Downloads"}, inplace=True)
     df.rename(columns={"Price": "Price ($)"}, inplace=True)
-    df.rename(columns={"Size (MB)": "Size (MB)"}, inplace=True)
+    df.rename(columns={"Size": "Size (MB)"}, inplace=True)
 
     df.drop(df[df["Downloads"] < 1000].index, inplace=True)
     df.drop(df[df["Rating Count"] < 50].index, inplace=True)
-    df.drop("Currency", axis=1, inplace=True)
 
-    # controlla contains_foreign_characters per ogni riga di "App Name" e se restituisce True, elimina la riga
+    # eliminazione delle righe contenenti caratteri stranieri in App Name
     df.drop(df[df["App Name"].apply(contains_foreign_characters)].index, inplace=True)
 
     df["Rating Count"] = df["Rating Count"].astype(int)
 
-    # aggiunta dei nomi delle app mancanti
+    # aggiunta dei nomi e dei rating alle app a cui mancavano
     df.loc[pd.isnull(df["App Name"]), "App Name"] = df.loc[pd.isnull(df["App Name"]), "App Id"].apply(lambda x: app(x)["title"])
-
     scrape_rating_info(df)
+
     # controllo inconsistenze tra Rating Count e Downloads
     df.drop(df[df["Rating Count"] > df["Downloads"]].index, inplace=True)
     df.drop("Rating Count", axis=1, inplace=True)

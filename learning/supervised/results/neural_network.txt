@@ -1,0 +1,19 @@
+Best parameters found: {'activation': 'relu', 'alpha': 0.05, 'hidden_layer_sizes': (50,), 'learning_rate': 'constant', 'max_iter': 1500, 'solver': 'adam'}
+Accuracy: 0.45375661375661375
+Confusion matrix:
+[[1413  632  499  154]
+ [ 762  907  826  280]
+ [ 644  571 1127  308]
+ [ 154  168  164  841]]
+Classification report:
+              precision    recall  f1-score   support
+
+           1       0.48      0.52      0.50      2698
+           2       0.40      0.33      0.36      2775
+           3       0.43      0.43      0.43      2650
+           4       0.53      0.63      0.58      1327
+
+    accuracy                           0.45      9450
+   macro avg       0.46      0.48      0.47      9450
+weighted avg       0.45      0.45      0.45      9450
+

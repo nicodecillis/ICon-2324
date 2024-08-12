@@ -280,7 +280,7 @@ df[categorical_features] = encoder.fit_transform(df[categorical_features])
 training = df.drop(columns=["Downloads", "Rating", "Editors Choice", "Success Rate"], axis=1)
 target = df["Success Rate"]
 
-# Dataset numerico per recommender system e prediction
+# Dataset numerico per prediction e elbow method
 encoded_df = pd.concat([df[["App Name", "App Id", "Category", "Price ($)", "Rating", "Downloads", "Content Rating",
                             "Developer Id", "Minimum Android", "Last Updated", "Editors Choice"]], target], axis=1)
 encoded_df.to_csv("../../dataset/encoded-playstore-apps.csv", index=False)

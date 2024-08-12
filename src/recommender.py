@@ -41,7 +41,7 @@ def find_recommendations(app_name, category, rating, downloads, price, content_r
 
     # Normalizzazione e addestramento
     expanded_user_input = preprocessing.normalize([expanded_user_input])
-    k_means = KMeans(n_clusters=3).fit(preprocessing.normalize(expanded_df))
+    k_means = KMeans(n_clusters=4).fit(preprocessing.normalize(expanded_df))
     expanded_df["Cluster"] = k_means.labels_
     balanced_df["Cluster"] = expanded_df["Cluster"]
 

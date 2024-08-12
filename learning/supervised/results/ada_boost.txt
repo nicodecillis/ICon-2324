@@ -1,0 +1,19 @@
+Best parameters found: {'algorithm': 'SAMME', 'estimator': RandomForestClassifier(), 'learning_rate': 0.1, 'n_estimators': 100}
+Accuracy: 0.493015873015873
+Confusion matrix:
+[[1485  682  438   93]
+ [ 883  989  748  155]
+ [ 631  675 1132  212]
+ [  77  101   96 1053]]
+Classification report:
+              precision    recall  f1-score   support
+
+           1       0.48      0.55      0.51      2698
+           2       0.40      0.36      0.38      2775
+           3       0.47      0.43      0.45      2650
+           4       0.70      0.79      0.74      1327
+
+    accuracy                           0.49      9450
+   macro avg       0.51      0.53      0.52      9450
+weighted avg       0.49      0.49      0.49      9450
+

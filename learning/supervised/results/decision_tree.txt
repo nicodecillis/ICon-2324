@@ -1,0 +1,19 @@
+Best parameters found: {'criterion': 'gini', 'max_depth': 20, 'max_features': 0.2, 'max_leaf_nodes': 30, 'min_samples_leaf': 30, 'min_samples_split': 20}
+Accuracy: 0.4202116402116402
+Confusion matrix:
+[[1451  625  529   93]
+ [ 853  878  854  190]
+ [ 771  547 1133  199]
+ [ 190  334  294  509]]
+Classification report:
+              precision    recall  f1-score   support
+
+           1       0.44      0.54      0.49      2698
+           2       0.37      0.32      0.34      2775
+           3       0.40      0.43      0.42      2650
+           4       0.51      0.38      0.44      1327
+
+    accuracy                           0.42      9450
+   macro avg       0.43      0.42      0.42      9450
+weighted avg       0.42      0.42      0.42      9450
+

@@ -1,0 +1,19 @@
+Best parameters found: {'var_smoothing': np.float64(0.43470131581250243)}
+Accuracy: 0.4217989417989418
+Confusion matrix:
+[[ 988  787  748  175]
+ [ 495  963 1010  307]
+ [ 390  567 1342  351]
+ [ 149  199  286  693]]
+Classification report:
+              precision    recall  f1-score   support
+
+           1       0.49      0.37      0.42      2698
+           2       0.38      0.35      0.36      2775
+           3       0.40      0.51      0.44      2650
+           4       0.45      0.52      0.49      1327
+
+    accuracy                           0.42      9450
+   macro avg       0.43      0.44      0.43      9450
+weighted avg       0.43      0.42      0.42      9450
+

@@ -14,7 +14,7 @@ count_occurrences(Elem, [Head|Tail], Count) :-
     Elem \= Head,
     count_occurrences(Elem, Tail, Count).
 
-% Predicato che conta il numero totale di app per uno sviluppatore
+% Predicato che conta il numero totale di app di uno sviluppatore
 count_apps_by_developer(Dev, Count) :-
     findall(AppName, app_developer(AppName, Dev), AppList),
     length(AppList, Count).
@@ -25,7 +25,7 @@ top_rating_price(RatingTh, PriceTh, N, TopApps) :-
     sort(2, @>=, AppList, SortedApps),
     take(N, SortedApps, TopApps).
 
-% Predicato per ottenere una lista di N app ordinate per numero di download per uno sviluppatore dato
+% Predicato per ottenere una lista di N app di uno sviluppatore dato ordinate per numero di download
 top_downloads_by_developer(Dev, N, TopAppsWithDownloads) :-
     findall((AppName, Downloads), app_developer_downloads(AppName, Dev, Downloads), AppsWithDownloads),
     sort(2, @>=, AppsWithDownloads, SortedAppsWithDownloads),
@@ -70,7 +70,7 @@ top_downloads_by_category(Category, N, AppList) :-
     sort(2, @>=, List, SortedList),
     take(N, SortedList, AppList).
 
-% Predicato che effettua la somma dei download per una categoria specifica
+% Predicato che effettua la somma dei download delle app appartenenti ad una specifica categoria
 sum_downloads_by_category(Category, TotalDownloads) :-
     findall(Downloads, app_category_downloads(_, Category, Downloads), DownloadList),
     sumlist(DownloadList, TotalDownloads).
@@ -83,7 +83,7 @@ categories_ranked_by_downloads(TotalDownloadsList) :-
     sort(2, @>=, List, SortedList),
     maplist([Tuple, NewTuple]>>(Tuple = (A,IntegerB), atom_string(IntegerB, StringB), NewTuple = (A,StringB)), SortedList, TotalDownloadsList).
 
-% Predicato che calcola il rating medio per una categoria specifica
+% Predicato che calcola il rating medio delle app appartenenti ad una specifica categoria
 avg_rating_by_category(Category, AvgRating) :-
     findall(Rating, app_category_rating(_, Category, Rating), RatingList),
     sumlist(RatingList, TotalRating),
@@ -92,7 +92,7 @@ avg_rating_by_category(Category, AvgRating) :-
     format(atom(AvgRatingAtom), '~2f', [AvgRatingRaw]),
     atom_number(AvgRatingAtom, AvgRating).
     
-% Predicato che calcola i download medi di una categoria specifica
+% Predicato che calcola i download medi delle app appartenenti ad una specifica categoria
 avg_downloads_by_category(Category, AvgDownloads) :-
     findall(Downloads, app_category_downloads(_, Category, Downloads), DownloadList),
     sumlist(DownloadList, TotalDownloads),
@@ -124,7 +124,7 @@ top_free_downloads(N, TopApps) :-
     maplist([Tuple, NewTuple]>>(Tuple = (A,IntegerB), atom_string(IntegerB, StringB), NewTuple = (A,StringB)), SortedList, ConvertedList),
     take(N, ConvertedList, TopApps).
     
-% Predicato che restituisce la lista degli sviluppatori con più app di successo in una categoria
+% Predicato che restituisce la lista degli sviluppatori con più app di successo in una specifica categoria
 top_developers_by_success(Category, N, TopDevList) :-
     findall(Dev, app_category_developer_success(_, Category, Dev, 'Very popular'), Devs),
     msort(Devs, SortedDevs),
